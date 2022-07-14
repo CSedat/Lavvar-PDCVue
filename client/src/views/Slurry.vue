@@ -44,10 +44,16 @@
           to="/slurry"
           >SAATLİK ŞLAM</RouterLink
         >
-        <a class="flex items-center gap-2 justify-center p-2">
-          <h1>m³/h: {{ slurrym3 }}</h1>
-          <h1>Saatlik Toplam: {{ slurryhourly }} m³</h1>
-          <h1>Vardiyalık Toplam: {{ slurrytotal }} m³</h1>
+        <a class="flex items-center text-center gap-2 justify-center p-2">
+          <h1 class="border rounded p-1 m-1 bg-green-800">
+            m³/h: <b>{{ slurrym3 }}</b>
+          </h1>
+          <h1 class="border rounded p-1 m-1 bg-green-800">
+            Saatlik Toplam: <b>{{ slurryhourly }}</b> m³
+          </h1>
+          <h1 class="border rounded p-1 m-1 bg-green-800">
+            Vardiyalık Toplam: <b>{{ slurrytotal }}</b> m³
+          </h1>
         </a>
       </nav>
     </div>
