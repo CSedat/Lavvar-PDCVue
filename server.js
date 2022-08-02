@@ -27,7 +27,9 @@ const path = require('path');
 var plcdata = {
     slurrym3: 0,
     slurryhourly: 0,
-    slurrytotal: 0
+    slurrytotal: 0,
+    ambarstatus: 0,
+    ambarseviye: 0
 }
 
 
@@ -52,6 +54,10 @@ app.get('/api/getpdcdata', function (req, res) {
 
 app.get('/api/getslurrydata', function (req, res) {
     res.sendFile('./slurrydata.json', { root: __dirname });
+});
+
+app.get('/api/getambardata', function (req, res) {
+    res.sendFile('./ambardata.json', { root: __dirname });
 });
 
 app.get('/api/saveslurry', function (req, res) {
@@ -248,7 +254,7 @@ function GetDate(bool) {
         var today = new Date();
         var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
         var time = today.getHours() + ":" + today.getMinutes();
-        return `${date} ${time}`;
+        return `${time} ${date}`;
     } else {
         var today = new Date();
         var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
@@ -262,7 +268,7 @@ function GetDate(bool) {
 
 
 var nodes7 = require('nodes7');
-var conn = new nodes7;
+var mainPLC = new nodes7;
 var doneReading = false;
 var doneWriting = false;
 
@@ -281,7 +287,7 @@ var variables = {
     // TEST10: 'DB5,X0.0.8'  // Array of 8 bits in a data block
 };
 
-conn.initiateConnection({
+mainPLC.initiateConnection({
     port: 102,
     host: '10.35.17.10',
     rack: 0,
@@ -296,24 +302,24 @@ function connected(err) {
         console.log(err);
         process.exit();
     }
-    conn.setTranslationCB(function (tag) {
+    mainPLC.setTranslationCB(function (tag) {
         return variables[tag];
     });
-    conn.addItems(['m3Slurry', 'HourlySlurry', 'SlurryTotal']);
-    conn.readAllItems(valuesReady);
+    mainPLC.addItems(['m3Slurry', 'HourlySlurry', 'SlurryTotal']);
+    mainPLC.readAllItems(valuesReady);
 }
 
 function valuesReady(err, values) {
     if (err) { console.log("OKUNAN DEĞERLERDE HATA VAR"); }
-    conn.readAllItems(valuesReady);
+    mainPLC.readAllItems(valuesReady);
     plcdata.slurrym3 = values.m3Slurry;
     plcdata.slurryhourly = values.HourlySlurry;
     plcdata.slurrytotal = values.SlurryTotal;
     doneReading = true;
 }
 
-function valuesWritten(anythingBad) {
-    if (anythingBad) { console.log("YAZILAN DEĞERLERDE HATA VAR"); }
+function valuesWritten(err) {
+    if (err) { console.log("YAZILAN DEĞERLERDE HATA VAR"); }
     console.log("Yazıldı.");
     doneWriting = true;
     if (doneReading) { process.exit(); }
@@ -321,3 +327,56 @@ function valuesWritten(anythingBad) {
 app.get('/api/getPLCData', function (req, res) {
     res.send(plcdata);
 });
+
+
+var ambarPLC = new nodes7;
+
+var ambarPLCvariables = {
+    status: 'DB2,INT2',
+    seviye: 'DB1,REAL0',
+};
+
+ambarPLC.initiateConnection({
+    port: 102,
+    host: '10.35.14.184',
+    rack: 0,
+    slot: 1,
+    timeout: 30000,
+    debug: true
+}, ambarPLCconnected);
+
+
+function ambarPLCconnected(err) {
+    if (typeof (err) !== "undefined") {
+        console.log(err);
+        process.exit();
+    }
+    ambarPLC.setTranslationCB(function (tag) {
+        return ambarPLCvariables[tag];
+    });
+    ambarPLC.addItems(['status', 'seviye']);
+    ambarPLC.readAllItems(ambarPLCvaluesReady);
+}
+
+function ambarPLCvaluesReady(err, values) {
+    if (err) { console.log("OKUNAN DEĞERLERDE HATA VAR"); }
+    ambarPLC.readAllItems(ambarPLCvaluesReady);
+    plcdata.ambarstatus = values.status;
+    plcdata.ambarseviye = values.seviye;
+    doneReading = true;
+}
+
+setInterval(() => {
+    fs.readFile('./ambardata.json', null, function (error, data) {
+        if (error) { reject('0'); console.log(error); }
+        var amdata = JSON.parse(data)
+        amdata.unshift({
+            time: GetDate(true),
+            status: plcdata.ambarstatus,
+            seviye: plcdata.ambarseviye,
+        });
+        fs.writeFile('./ambardata.json', JSON.stringify(amdata), err => {
+            if (err) throw err;
+        });
+    });
+}, 60000);

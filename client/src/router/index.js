@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import PDC from '../views/Pdc.vue'
 import Slurry from '../views/Slurry.vue'
+import Ambar from '../views/Ambar.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,6 +21,11 @@ const router = createRouter({
       path: '/slurry',
       name: 'slurry',
       component: Slurry
+    },
+    {
+      path: '/ambar',
+      name: 'ambar',
+      component: Ambar
     }
   ]
 })

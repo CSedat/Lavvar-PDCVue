@@ -44,6 +44,27 @@
           to="/slurry"
           >SAATLİK ŞLAM</RouterLink
         >
+        <RouterLink
+          class="
+            select-none
+            p-2
+            m-2
+            border-solid border-2
+            bg-blue-600
+            border-sky-500
+            rounded-md
+            font-semibold
+            uppercase
+            cursor-pointer
+            opacity-60
+            hover:opacity-100
+            transition-all
+            hover:scale-110
+            custom-op
+          "
+          to="/ambar"
+          >Ambar Pompa</RouterLink
+        >
       </nav>
     </div>
     <a
