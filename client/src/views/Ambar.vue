@@ -67,18 +67,20 @@
           >Ambar Pompa</RouterLink
         >
       </nav>
-      <select class=" w-16 m-4 bg-gray-500 text-white" v-model="selectedday" @change="selectDay">
+        <span>Gün: {{ selectedday }}</span>
+        <select class=" w-16 m-4 bg-gray-500 text-white" v-model="selectedday" @change="selectDay">
              <option v-for="item in dayselectoptions[0]" v-bind:value="item.value" :selected="item.value == selectedday">
                {{ item.label }}
             </option>
         </select>
-        <span>Gün: {{ selectedday }}</span>
+        <span>Ay: {{ selectedmon }}</span>
         <select class=" w-16 m-4 bg-gray-500 text-white" v-model="selectedmon" @change="selectDay">
              <option v-for="item in monselectoptions[0]" v-bind:value="item.value" :selected="item.value == selectedmon">
                {{ item.label }}
             </option>
         </select>
-        <span>Ay: {{ selectedmon }}</span>
+        <span> Pompa Durumu: <span class=" text-green-400">{{pumpstatus}}</span>  </span>
+        <span> Seviye: {{pumplevel}}% </span>
     </div>
     <LineChartGenerator class=" text-white"
     :chart-options="chartOptions"
@@ -184,6 +186,8 @@ export default {
             selectedmon: moment().format('M'),
             dayselectoptions: [datedays],
             monselectoptions: [datemons],
+            pumpstatus: '-',
+            pumplevel: 0,
             chartData: {
                 labels: [],
                 datasets: [
@@ -256,7 +260,6 @@ export default {
         }
         axios.get('http://10.35.13.108:8001/api/getambardata').then(response => {
             let data = response.data
-            
             for (let i = 0; i < data.length; i++) {
                 const element = data[i];
                 if (element.time.split(' ')[1].toString().split('-')[0] == this.selectedday && element.time.split(' ')[1].toString().split('-')[1] == this.selectedmon) {
@@ -264,12 +267,25 @@ export default {
                     this.chartData.datasets[0].data.push(element.status)
                     this.chartData.datasets[1].data.push(element.seviye)
                 }
-                // this.chartData.labels.push(element.time)
-                // this.chartData.datasets[0].data.push(element.status)
-                // this.chartData.datasets[1].data.push(element.seviye)
-                
             }
         })
+        setInterval(() => {
+          axios.get("http://10.35.13.108:8001/api/getPLCData").then((response) => {
+            let jsondata = response.data;
+            let status = jsondata.ambarstatus.toFixed();
+            if (status == 1){
+                this.pumpstatus = 'Çalışıyor'
+            } else if (status == 2){
+                this.pumpstatus = 'Çalışmıyor'
+            }else if (status == 3){
+                this.pumpstatus = 'Acil Stop'
+            }else if (status == 4){
+                this.pumpstatus = 'Termik Hata'
+            }
+            
+            this.pumplevel = jsondata.ambarseviye.toFixed();
+          });
+        }, 3000);
     },
     methods: {
         selectDay() {
