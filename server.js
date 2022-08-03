@@ -29,7 +29,9 @@ var plcdata = {
     slurryhourly: 0,
     slurrytotal: 0,
     ambarstatus: 0,
-    ambarseviye: 0
+    ambarseviye: 0,
+    lavvarkwh: 0,
+    crusherkwh: 0,
 }
 
 
@@ -188,7 +190,8 @@ app.get("/takeX", (req, res) => {
             D707: parseInt(jsondata["D707"]).toFixed(),
             D710: parseInt(jsondata["D710"]).toFixed(),
             Slurry: parseInt(jsondata["Slurry"]).toFixed(),
-            Keson: parseInt(jsondata["Keson"]).toFixed()
+            Keson: parseInt(jsondata["Keson"]).toFixed(),
+            kWh: ((plcdata.lavvarkwh + plcdata.crusherkwh) - Objn[0].kWh),
         });
         var newData = JSON.stringify(Obj);
         fs.writeFile('./data.json', newData, err => {
@@ -204,7 +207,7 @@ app.get("/takeX", (req, res) => {
                 fs.readFile('./data.json', null, function (error, data) {
                     if (error) { reject('0'); console.log(error); }
                     var jdata = JSON.parse(data)
-                    var BC1B_PDC1 = 0, BC1B_PDC2 = 0, D301_PDC1 = 0, D301_PDC2 = 0, D701 = 0, D705 = 0, D706 = 0, D707 = 0, D710 = 0, Keson = 0, Slurry = 0;
+                    var BC1B_PDC1 = 0, BC1B_PDC2 = 0, D301_PDC1 = 0, D301_PDC2 = 0, D701 = 0, D705 = 0, D706 = 0, D707 = 0, D710 = 0, Keson = 0, Slurry = 0, kWh = 0;
                     for (var i in jdata.slice(0, 3)) {
                         BC1B_PDC1 += parseInt(jdata[i].BC1B_PDC1);
                         BC1B_PDC2 += parseInt(jdata[i].BC1B_PDC2);
@@ -217,6 +220,7 @@ app.get("/takeX", (req, res) => {
                         D710 += parseInt(jdata[i].D710);
                         Keson += parseInt(jdata[i].Keson);
                         Slurry += parseInt(jdata[i].Slurry);
+                        kWh += parseInt(jdata[i].kWh);
                     }
                     jdata.unshift({
                         time: GetDate(),
@@ -232,6 +236,7 @@ app.get("/takeX", (req, res) => {
                         D710,
                         Keson,
                         Slurry,
+                        kWh,
                     });
                     fs.writeFile('./data.json', JSON.stringify(jdata), err => {
                         if (err) throw err;
@@ -268,6 +273,7 @@ function GetDate(bool) {
 
 
 var nodes7 = require('nodes7');
+const { Console } = require('console');
 var mainPLC = new nodes7;
 var doneReading = false;
 var doneWriting = false;
@@ -276,6 +282,7 @@ var variables = {
     m3Slurry: 'DB80,REAL0',
     SlurryTotal: 'DB80,REAL16',
     HourlySlurry: 'DB80,REAL24',
+    Pac3200: 'DB79,LREAL144',
     // TEST2: 'M32.2',        // Bit at M32.2
     // TEST3: 'M20.0',        // Bit at M20.0
     // TEST4: 'DB1,REAL0.20', // Array of 20 values in DB1
@@ -305,7 +312,7 @@ function connected(err) {
     mainPLC.setTranslationCB(function (tag) {
         return variables[tag];
     });
-    mainPLC.addItems(['m3Slurry', 'HourlySlurry', 'SlurryTotal']);
+    mainPLC.addItems(['m3Slurry', 'HourlySlurry', 'SlurryTotal', 'Pac3200']);
     mainPLC.readAllItems(valuesReady);
 }
 
@@ -315,7 +322,7 @@ function valuesReady(err, values) {
     plcdata.slurrym3 = values.m3Slurry;
     plcdata.slurryhourly = values.HourlySlurry;
     plcdata.slurrytotal = values.SlurryTotal;
-    doneReading = true;
+    plcdata.lavvarkwh = parseInt(values.Pac3200.toFixed());
 }
 
 function valuesWritten(err) {
@@ -363,7 +370,7 @@ function ambarPLCvaluesReady(err, values) {
     ambarPLC.readAllItems(ambarPLCvaluesReady);
     plcdata.ambarstatus = values.status;
     plcdata.ambarseviye = values.seviye;
-    doneReading = true;
+
 }
 
 setInterval(() => {
@@ -392,3 +399,40 @@ setInterval(() => {
         });
     });
 }, 60000);
+
+
+
+var crusherPLC = new nodes7;
+
+var crusherPLCvariables = {
+    crusherkhw: 'MR152',
+};
+
+crusherPLC.initiateConnection({
+    port: 102,
+    host: '10.35.17.11',
+    rack: 0,
+    slot: 1,
+    timeout: 30000,
+    debug: true
+}, crusherPLCconnected);
+
+
+function crusherPLCconnected(err) {
+    if (typeof (err) !== "undefined") {
+        console.log(err);
+        process.exit();
+    }
+    crusherPLC.setTranslationCB(function (tag) {
+        return crusherPLCvariables[tag];
+    });
+    crusherPLC.addItems(['crusherkhw']);
+    crusherPLC.readAllItems(crusherPLCvaluesReady);
+}
+
+function crusherPLCvaluesReady(err, values) {
+    if (err) { console.log("OKUNAN DEĞERLERDE HATA VAR"); }
+    crusherPLC.readAllItems(crusherPLCvaluesReady);
+    plcdata.crusherkwh = parseInt(values.crusherkhw.toFixed());
+}
+

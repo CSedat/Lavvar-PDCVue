@@ -21,7 +21,7 @@
             custom-op
           "
           to="/pdc"
-          >KANTAR</RouterLink
+          >TREND</RouterLink
         >
         <RouterLink
           class="
@@ -132,7 +132,8 @@ export default {
       { text: "707 (Araürün)", value: "D707" },
       { text: "710 (Taş)", value: "D710" },
       { text: "Şlam (m³)", value: "Slurry" },
-      { text: "Keson (m³)", value: "Keson" }
+      { text: "Keson (m³)", value: "Keson" },
+      { text: "kWh", value: "kWh" }
     );
 
     axios.get("http://10.35.13.108:8001/api/getpdcdata").then((response) => {
@@ -160,6 +161,7 @@ export default {
           "710 (Taş)",
           "Keson (m³)",
           "Şlam (m³)",
+          "Harcanan Enerji (kWh)",
         ];
         var xlsRows = response.data;
         createXLSLFormatObj.push(xlsHeader);
