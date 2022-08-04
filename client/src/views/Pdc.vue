@@ -133,7 +133,8 @@ export default {
       { text: "710 (Taş)", value: "D710" },
       { text: "Şlam (m³)", value: "Slurry" },
       { text: "Keson (m³)", value: "Keson" },
-      { text: "kWh", value: "kWh" }
+      { text: "kWh", value: "kWh" },
+      { text: "kWh Vardiyalık", value: "kWhvard" }
     );
 
     axios.get("http://10.35.13.108:8001/api/getpdcdata").then((response) => {
@@ -162,6 +163,7 @@ export default {
           "Keson (m³)",
           "Şlam (m³)",
           "Harcanan Enerji (kWh)",
+          "Harcanan Enerji Vardiyalık (kWh)",
         ];
         var xlsRows = response.data;
         createXLSLFormatObj.push(xlsHeader);

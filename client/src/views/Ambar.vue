@@ -67,17 +67,11 @@
           >Ambar Pompa</RouterLink
         >
       </nav>
-        <span>Gün: {{ selectedday }}</span>
         <select class=" w-16 m-4 bg-gray-500 text-white" v-model="selectedday" @change="selectDay">
-             <option v-for="item in dayselectoptions[0]" v-bind:value="item.value" :selected="item.value == selectedday">
-               {{ item.label }}
-            </option>
+             <option v-for="item in dayselectoptions[0]" v-bind:value="item.value" :selected="item.value == selectedday">Gün {{ item.label }} </option>
         </select>
-        <span>Ay: {{ selectedmon }}</span>
         <select class=" w-16 m-4 bg-gray-500 text-white" v-model="selectedmon" @change="selectDay">
-             <option v-for="item in monselectoptions[0]" v-bind:value="item.value" :selected="item.value == selectedmon">
-               {{ item.label }}
-            </option>
+             <option v-for="item in monselectoptions[0]" v-bind:value="item.value" :selected="item.value == selectedmon">Ay {{ item.label }}</option>
         </select>
         <span> Pompa Durumu: <span class=" text-green-400">{{pumpstatus}}</span>  </span>
         <span> Seviye: {{pumplevel}}% </span>
