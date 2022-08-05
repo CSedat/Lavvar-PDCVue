@@ -192,7 +192,7 @@ app.get("/takeX", (req, res) => {
             Slurry: parseInt(jsondata["Slurry"]).toFixed(),
             Keson: parseInt(jsondata["Keson"]).toFixed(),
             kWh: (plcdata.lavvarkwh + plcdata.crusherkwh),
-            kWhvard: ((plcdata.lavvarkwh + plcdata.crusherkwh) - Objn[0].kWh),
+            kWhvard: ((plcdata.lavvarkwh + plcdata.crusherkwh) - Obj[0].kWh),
         });
         var newData = JSON.stringify(Obj);
         fs.writeFile('./data.json', newData, err => {
@@ -208,7 +208,7 @@ app.get("/takeX", (req, res) => {
                 fs.readFile('./data.json', null, function (error, data) {
                     if (error) { reject('0'); console.log(error); }
                     var jdata = JSON.parse(data)
-                    var BC1B_PDC1 = 0, BC1B_PDC2 = 0, D301_PDC1 = 0, D301_PDC2 = 0, D701 = 0, D705 = 0, D706 = 0, D707 = 0, D710 = 0, Keson = 0, Slurry = 0, kWh = 0, kWhvard = 0;
+                    var BC1B_PDC1 = 0, BC1B_PDC2 = 0, D301_PDC1 = 0, D301_PDC2 = 0, D701 = 0, D705 = 0, D706 = 0, D707 = 0, D710 = 0, Keson = 0, Slurry = 0, kWh = (plcdata.lavvarkwh + plcdata.crusherkwh), kWhvard = 0;
                     for (var i in jdata.slice(0, 3)) {
                         BC1B_PDC1 += parseInt(jdata[i].BC1B_PDC1);
                         BC1B_PDC2 += parseInt(jdata[i].BC1B_PDC2);
@@ -221,7 +221,6 @@ app.get("/takeX", (req, res) => {
                         D710 += parseInt(jdata[i].D710);
                         Keson += parseInt(jdata[i].Keson);
                         Slurry += parseInt(jdata[i].Slurry);
-                        kWh += parseInt(jdata[i].kWhvard);
                         kWhvard += parseInt(jdata[i].kWhvard);
                     }
                     jdata.unshift({
