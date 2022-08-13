@@ -13,16 +13,16 @@
         </RouterLink>
       </nav>
     </div>
-    <div class=" grid grid-cols-9 text-white font-sans font-semibold p-3">
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">BC1B-1: <strong>{{bc1b_1}}</strong></a>
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">BC1B-2: <strong>{{bc1b_2}}</strong></a>
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">D301-1: <strong>{{d301_1}}</strong></a>
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">D301-2: <strong>{{d301_2}}</strong></a>
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">D701: <strong>{{d701}}</strong></a>
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">D705: <strong>{{d705}}</strong></a>
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">D706: <strong>{{d706}}</strong></a>
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">D707: <strong>{{d707}}</strong></a>
-      <a class=" border border-gray-400 rounded justify-center items-center text-center">D710: <strong>{{d710}}</strong></a>
+    <div class=" grid gap-5 grid-cols-9 text-white font-sans font-semibold p-3">
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">BC1B-1: <strong class="underline">{{bc1b_1}}</strong></a>
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">BC1B-2: <strong class="underline">{{bc1b_2}}</strong></a>
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">D301-1: <strong class="underline">{{d301_1}}</strong></a>
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">D301-2: <strong class="underline">{{d301_2}}</strong></a>
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">D701: <strong class="underline">{{d701}}</strong></a>
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">D705: <strong class="underline">{{d705}}</strong></a>
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">D706: <strong class="underline">{{d706}}</strong></a>
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">D707: <strong class="underline">{{d707}}</strong></a>
+      <a class=" border border-gray-400 rounded justify-center items-center text-center">D710: <strong class="underline">{{d710}}</strong></a>
     </div>
     <a v-on:click="exportToExcel" class=" cursor-pointer bg-green-700 text-white hover:bg-green-500 rounded p-1 m-1 top-0 right-0">Excel'e Aktar</a>
     <EasyDataTable buttons-pagination :headers="headers" :items="items" alternating table-border-color="#445269" row-border-color="#445269" header-background-color="#2d3a4f" header-font-color="#c1cad4" even-row-background-color="#4c5d7a" even-row-font-color="#fff" footer-background-color="#2d3a4f" footer-font-color="#c0c7d2" row-background-color="#2d3a4f" row-font-color="#c0c7d2" row-hover-background-color="#eee" row-hover-font-color="#2d3a4f" theme-color="#1d90ff"/>
