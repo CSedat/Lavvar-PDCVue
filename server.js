@@ -32,6 +32,19 @@ var plcdata = {
     ambarseviye: 0,
     lavvarkwh: 0,
     crusherkwh: 0,
+    crusherpdc:{
+        bc1b_1: 0,
+        bc1c_2: 0,
+    },
+    mainplcpdc: {
+        d301_1: 0,
+        d301_2: 0,
+        d701: 0,
+        d705: 0,
+        d706: 0,
+        d707: 0,
+        d710: 0,
+    }
 }
 
 
@@ -285,15 +298,8 @@ var variables = {
     SlurryTotal: 'DB80,REAL16',
     HourlySlurry: 'DB80,REAL24',
     Pac3200: 'DB79,LREAL144',
-    // TEST2: 'M32.2',        // Bit at M32.2
-    // TEST3: 'M20.0',        // Bit at M20.0
-    // TEST4: 'DB1,REAL0.20', // Array of 20 values in DB1
-    // TEST5: 'DB1,REAL4',    // Single real value
-    // TEST6: 'DB1,REAL8',    // Another single real value
-    // TEST7: 'DB1,INT12.2',  // Two integer value array
-    // TEST8: 'DB1,LREAL4',   // Single 8-byte real value
-    // TEST9: 'DB1,X14.0',    // Single bit in a data block
-    // TEST10: 'DB5,X0.0.8'  // Array of 8 bits in a data block
+    MainPLCMBPdc: 'DB69,REAL48.6',
+    MainPLCPdc710: 'DB13,REAL20',
 };
 
 mainPLC.initiateConnection({
@@ -314,17 +320,26 @@ function connected(err) {
     mainPLC.setTranslationCB(function (tag) {
         return variables[tag];
     });
-    mainPLC.addItems(['m3Slurry', 'HourlySlurry', 'SlurryTotal', 'Pac3200']);
+    mainPLC.addItems(['m3Slurry', 'HourlySlurry', 'SlurryTotal', 'Pac3200', 'MainPLCMBPdc', 'MainPLCPdc710']);
     mainPLC.readAllItems(valuesReady);
 }
 
 function valuesReady(err, values) {
     if (err) { console.log("OKUNAN DEĞERLERDE HATA VAR"); }
     mainPLC.readAllItems(valuesReady);
-    plcdata.slurrym3 = values.m3Slurry;
+    plcdata.slurrym3 = parseInt(values.m3Slurry.toFixed(2));
     plcdata.slurryhourly = values.HourlySlurry;
-    plcdata.slurrytotal = values.SlurryTotal;
+    plcdata.slurrytotal = parseInt(values.SlurryTotal.toFixed(2));
     plcdata.lavvarkwh = parseInt(values.Pac3200.toFixed());
+    plcdata.mainplcpdc = {
+        d301_1: parseInt(values.MainPLCMBPdc[0].toFixed()),
+        d301_2: parseInt(values.MainPLCMBPdc[1].toFixed()),
+        d701: parseInt(values.MainPLCMBPdc[2].toFixed()),
+        d705: parseInt(values.MainPLCMBPdc[3].toFixed()),
+        d706: parseInt(values.MainPLCMBPdc[4].toFixed()),
+        d707: parseInt(values.MainPLCMBPdc[5].toFixed()),
+        d710: parseInt(values.MainPLCPdc710.toFixed()),
+    }
 }
 
 function valuesWritten(err) {
@@ -408,6 +423,8 @@ var crusherPLC = new nodes7;
 
 var crusherPLCvariables = {
     crusherkhw: 'MR152',
+    bc1bpdc1: 'DB57,REAL0',
+    bc1bpdc2: 'DB57,REAL18',
 };
 
 crusherPLC.initiateConnection({
@@ -428,7 +445,7 @@ function crusherPLCconnected(err) {
     crusherPLC.setTranslationCB(function (tag) {
         return crusherPLCvariables[tag];
     });
-    crusherPLC.addItems(['crusherkhw']);
+    crusherPLC.addItems(['crusherkhw', 'bc1bpdc1', 'bc1bpdc2']);
     crusherPLC.readAllItems(crusherPLCvaluesReady);
 }
 
@@ -436,5 +453,10 @@ function crusherPLCvaluesReady(err, values) {
     if (err) { console.log("OKUNAN DEĞERLERDE HATA VAR"); }
     crusherPLC.readAllItems(crusherPLCvaluesReady);
     plcdata.crusherkwh = parseInt(values.crusherkhw.toFixed());
+    plcdata.crusherpdc = {
+        bc1b_1: parseInt(values.bc1bpdc1.toFixed()),
+        bc1b_2: parseInt(values.bc1bpdc2.toFixed()),
+    }
+    
 }
 

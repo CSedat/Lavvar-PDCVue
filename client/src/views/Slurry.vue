@@ -2,69 +2,15 @@
   <div class="md:border-collapse">
     <div class="text-center text-white">
       <nav>
-        <RouterLink
-          class="
-            select-none
-            p-2
-            m-2
-            border-solid border-2
-            bg-blue-600
-            border-sky-500
-            rounded-md
-            font-semibold
-            uppercase
-            cursor-pointer
-            opacity-60
-            hover:opacity-100
-            transition-all
-            hover:scale-110
-            custom-op
-          "
-          to="/pdc"
-          >KANTAR</RouterLink
-        >
-        <RouterLink
-          class="
-            select-none
-            p-2
-            m-2
-            border-solid border-2
-            bg-blue-600
-            border-sky-500
-            rounded-md
-            font-semibold
-            uppercase
-            cursor-pointer
-            opacity-60
-            hover:opacity-100
-            transition-all
-            hover:scale-110
-            custom-op
-          "
-          to="/slurry"
-          >SAATLİK ŞLAM</RouterLink
-        >
-        <RouterLink
-          class="
-            select-none
-            p-2
-            m-2
-            border-solid border-2
-            bg-blue-600
-            border-sky-500
-            rounded-md
-            font-semibold
-            uppercase
-            cursor-pointer
-            opacity-60
-            hover:opacity-100
-            transition-all
-            hover:scale-110
-            custom-op
-          "
-          to="/ambar"
-          >Ambar Pompa</RouterLink
-        >
+        <RouterLink class=" select-none p-2 m-2 border-solid border-2 bg-blue-600 border-sky-500 rounded-md font-semibold uppercase cursor-pointer opacity-60 hover:opacity-100 transition-all hover:scale-110 custom-op" to="/pdc">
+          TREND
+        </RouterLink>
+        <RouterLink class=" select-none p-2 m-2 border-solid border-2 bg-blue-600 border-sky-500 rounded-md font-semibold uppercase cursor-pointer opacity-60 hover:opacity-100 transition-all hover:scale-110 custom-op " to="/slurry" >
+          SAATLİK ŞLAM
+        </RouterLink>
+        <RouterLink class=" select-none p-2 m-2 border-solid border-2 bg-blue-600 border-sky-500 rounded-md font-semibold uppercase cursor-pointer opacity-60 hover:opacity-100 transition-all hover:scale-110 custom-op " to="/ambar" >
+          Ambar Pompa
+        </RouterLink>
         <a class="flex items-center text-center gap-2 justify-center p-2">
           <h1 class="border rounded p-1 m-1 bg-green-800">
             m³/h: <b>{{ slurrym3 }}</b>

@@ -1,73 +1,18 @@
 <template>
   <div class="">
     <div class="text-center text-white">
-        
       <nav>
-        <RouterLink
-          class="
-            select-none
-            p-2
-            m-2
-            border-solid border-2
-            bg-blue-600
-            border-sky-500
-            rounded-md
-            font-semibold
-            uppercase
-            cursor-pointer
-            opacity-60
-            hover:opacity-100
-            transition-all
-            hover:scale-110
-            custom-op
-          "
-          to="/pdc"
-          >KANTAR</RouterLink
-        >
-        <RouterLink
-          class="
-            select-none
-            p-2
-            m-2
-            border-solid border-2
-            bg-blue-600
-            border-sky-500
-            rounded-md
-            font-semibold
-            uppercase
-            cursor-pointer
-            opacity-60
-            hover:opacity-100
-            transition-all
-            hover:scale-110
-            custom-op
-          "
-          to="/slurry"
-          >SAATLİK ŞLAM</RouterLink
-        >
-        <RouterLink
-          class="
-            select-none
-            p-2
-            m-2
-            border-solid border-2
-            bg-blue-600
-            border-sky-500
-            rounded-md
-            font-semibold
-            uppercase
-            cursor-pointer
-            opacity-60
-            hover:opacity-100
-            transition-all
-            hover:scale-110
-            custom-op
-          "
-          to="/ambar"
-          >Ambar Pompa</RouterLink
-        >
+        <RouterLink class=" select-none p-2 m-2 border-solid border-2 bg-blue-600 border-sky-500 rounded-md font-semibold uppercase cursor-pointer opacity-60 hover:opacity-100 transition-all hover:scale-110 custom-op" to="/pdc">
+          TREND
+        </RouterLink>
+        <RouterLink class=" select-none p-2 m-2 border-solid border-2 bg-blue-600 border-sky-500 rounded-md font-semibold uppercase cursor-pointer opacity-60 hover:opacity-100 transition-all hover:scale-110 custom-op " to="/slurry" >
+          SAATLİK ŞLAM
+        </RouterLink>
+        <RouterLink class=" select-none p-2 m-2 border-solid border-2 bg-blue-600 border-sky-500 rounded-md font-semibold uppercase cursor-pointer opacity-60 hover:opacity-100 transition-all hover:scale-110 custom-op " to="/ambar" >
+          Ambar Pompa
+        </RouterLink>
       </nav>
-        <select class=" w-16 m-4 bg-gray-500 text-white" v-model="selectedday" @change="selectDay">
+        <select class=" w-20 m-4 bg-gray-500 text-white" v-model="selectedday" @change="selectDay">
              <option v-for="item in dayselectoptions[0]" v-bind:value="item.value" :selected="item.value == selectedday">Gün {{ item.label }} </option>
         </select>
         <select class=" w-16 m-4 bg-gray-500 text-white" v-model="selectedmon" @change="selectDay">
@@ -91,6 +36,7 @@
 </template>
 
 <script>
+import { RouterLink, RouterView } from "vue-router";
 import { Line as LineChartGenerator } from 'vue-chartjs'
 import moment from 'moment'
 
