@@ -198,15 +198,17 @@ export default {
         for (let j = 0; j < this.chartData.datasets; j++) {
             this.chartData.datasets[j].data = []
         }
-        axios.get('http://10.35.13.108:8001/api/getambardata').then(response => {
+        var today = new Date();
+        axios.post('http://10.35.13.108:8001/api/getambardatafromdate', {
+            date: `${this.selectedmon}-${today.getFullYear()}`,
+            dateFull: `${this.selectedday}-${this.selectedmon}-${today.getFullYear()}`
+        }).then(response => {
             let data = response.data
             for (let i = 0; i < data.length; i++) {
                 const element = data[i];
-                if (element.time.split(' ')[1].toString().split('-')[0] == this.selectedday && element.time.split(' ')[1].toString().split('-')[1] == this.selectedmon) {
-                    this.chartData.labels.push(element.time)
-                    this.chartData.datasets[0].data.push(element.status)
-                    this.chartData.datasets[1].data.push(element.seviye)
-                }
+                this.chartData.labels.push(element.time)
+                this.chartData.datasets[0].data.push(element.status)
+                this.chartData.datasets[1].data.push(element.seviye)
             }
         })
         setInterval(() => {
@@ -233,20 +235,17 @@ export default {
             for (let j = 0; j < this.chartData.datasets; j++) {
                 this.chartData.datasets[j].data = []
             }
-            axios.get('http://10.35.13.108:8001/api/getambardata').then(response => {
+            var today = new Date();
+            axios.post('http://10.35.13.108:8001/api/getambardatafromdate', {
+                date: `${this.selectedmon}-${today.getFullYear()}`,
+                dateFull: `${this.selectedday}-${this.selectedmon}-${today.getFullYear()}`
+            }).then(response => {
                 let data = response.data
-
                 for (let i = 0; i < data.length; i++) {
                     const element = data[i];
-                    if (element.time.split(' ')[1].toString().split('-')[0] == this.selectedday && element.time.split(' ')[1].toString().split('-')[1] == this.selectedmon) {
-                        this.chartData.labels.push(element.time)
-                        this.chartData.datasets[0].data.push(element.status)
-                        this.chartData.datasets[1].data.push(element.seviye)
-                    }
-                    // this.chartData.labels.push(element.time)
-                    // this.chartData.datasets[0].data.push(element.status)
-                    // this.chartData.datasets[1].data.push(element.seviye)
-
+                    this.chartData.labels.push(element.time)
+                    this.chartData.datasets[0].data.push(element.status)
+                    this.chartData.datasets[1].data.push(element.seviye)
                 }
             })
         }

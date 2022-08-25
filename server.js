@@ -44,6 +44,14 @@ var plcdata = {
         d706: 0,
         d707: 0,
         d710: 0,
+    },
+    d328_vals: {
+        voltage: 0,
+        current: 0,
+        density: 0,
+        level: 0,
+        kw: 0,
+        kwh: 0,
     }
 }
 
@@ -75,13 +83,26 @@ app.get('/api/getambardata', function (req, res) {
     res.sendFile('./ambardata.json', { root: __dirname });
 });
 
+app.post('/api/getambardatafromdate', function (req, res) {
+    var date = req.body.date;
+    var dateFull = req.body.dateFull;
+    fs.readFile(`./ambardata/${date}/${dateFull}.json`, null, function (error, data) {
+        if (error) {
+            console.log(error);
+            res.send('error');
+            return
+        }
+        res.send(data);
+    });
+});
+
 app.get('/api/saveslurry', function (req, res) {
     res.destroy();
     const prof = new Promise(function (resolve, reject) {
         try {
             resolve(req.query);
         } catch (e) {
-            reject('0');
+            
             console.log(e);
         }
     })
@@ -127,7 +148,7 @@ app.get('/api/saveslurry', function (req, res) {
         setTimeout(function () {
             var prof = new Promise(function (resolve, reject) {
                 fs.readFile('./slurrydata.json', null, function (error, data) {
-                    if (error) { reject('0'); console.log(error); }
+                    if (error) {  console.log(error); }
                     var jdata = JSON.parse(data)
                     var Slurry = 0;
                     for (var i in jdata.slice(0, 23)) {
@@ -161,7 +182,7 @@ app.get("/takeX", (req, res) => {
         try {
             resolve(req.query);
         } catch (e) {
-            reject('0');
+            
             console.log(e);
         }
     })
@@ -219,7 +240,7 @@ app.get("/takeX", (req, res) => {
         setTimeout(function () {
             var prof = new Promise(function (resolve, reject) {
                 fs.readFile('./data.json', null, function (error, data) {
-                    if (error) { reject('0'); console.log(error); }
+                    if (error) {  console.log(error); }
                     var jdata = JSON.parse(data)
                     var BC1B_PDC1 = 0, BC1B_PDC2 = 0, D301_PDC1 = 0, D301_PDC2 = 0, D701 = 0, D705 = 0, D706 = 0, D707 = 0, D710 = 0, Keson = 0, Slurry = 0, kWh = (plcdata.lavvarkwh + plcdata.crusherkwh), kWhvard = 0;
                     for (var i in jdata.slice(0, 3)) {
@@ -300,6 +321,7 @@ var variables = {
     Pac3200: 'DB79,LREAL144',
     MainPLCMBPdc: 'DB69,REAL48.6',
     MainPLCPdc710: 'DB13,REAL20',
+    D328Values: 'DB85,REAL0.6',
 };
 
 mainPLC.initiateConnection({
@@ -315,17 +337,16 @@ mainPLC.initiateConnection({
 function connected(err) {
     if (typeof (err) !== "undefined") {
         console.log(err);
-        process.exit();
     }
     mainPLC.setTranslationCB(function (tag) {
         return variables[tag];
     });
-    mainPLC.addItems(['m3Slurry', 'HourlySlurry', 'SlurryTotal', 'Pac3200', 'MainPLCMBPdc', 'MainPLCPdc710']);
+    mainPLC.addItems(['m3Slurry', 'HourlySlurry', 'SlurryTotal', 'Pac3200', 'MainPLCMBPdc', 'MainPLCPdc710', 'D328Values']);
     mainPLC.readAllItems(valuesReady);
 }
 
 function valuesReady(err, values) {
-    if (err) { console.log("OKUNAN DEĞERLERDE HATA VAR"); }
+    if (err) { console.log('\x1b[31m', `Plc Bağlantısı Yok yada Okunan Değerlerde Hata Var` ,'\x1b[0m'); return }
     mainPLC.readAllItems(valuesReady);
     plcdata.slurrym3 = parseInt(values.m3Slurry.toFixed(2));
     plcdata.slurryhourly = values.HourlySlurry;
@@ -340,13 +361,21 @@ function valuesReady(err, values) {
         d707: parseInt(values.MainPLCMBPdc[5].toFixed()),
         d710: parseInt(values.MainPLCPdc710.toFixed()),
     }
+    plcdata.d328_vals = {
+        voltage: values.D328Values[0].toFixed(2),
+        current: values.D328Values[1].toFixed(2),
+        density: values.D328Values[2].toFixed(2),
+        level: values.D328Values[3].toFixed(),
+        kw: values.D328Values[4].toFixed(),
+        kwh: values.D328Values[5].toFixed(),
+    }
 }
 
 function valuesWritten(err) {
     if (err) { console.log("YAZILAN DEĞERLERDE HATA VAR"); }
     console.log("Yazıldı.");
     doneWriting = true;
-    if (doneReading) { process.exit(); }
+    if (doneReading) {  }
 }
 app.get('/api/getPLCData', function (req, res) {
     res.send(plcdata);
@@ -373,7 +402,7 @@ ambarPLC.initiateConnection({
 function ambarPLCconnected(err) {
     if (typeof (err) !== "undefined") {
         console.log(err);
-        process.exit();
+    
     }
     ambarPLC.setTranslationCB(function (tag) {
         return ambarPLCvariables[tag];
@@ -383,7 +412,7 @@ function ambarPLCconnected(err) {
 }
 
 function ambarPLCvaluesReady(err, values) {
-    if (err) { console.log("OKUNAN DEĞERLERDE HATA VAR"); }
+    if (err) { console.log('\x1b[31m', `Plc Bağlantısı Yok yada Okunan Değerlerde Hata Var` ,'\x1b[0m'); return }
     ambarPLC.readAllItems(ambarPLCvaluesReady);
     plcdata.ambarstatus = values.status;
     plcdata.ambarseviye = values.seviye;
@@ -392,7 +421,7 @@ function ambarPLCvaluesReady(err, values) {
 
 setInterval(() => {
     fs.readFile('./ambardata.json', null, function (error, data) {
-        if (error) { reject('0'); console.log(error); }
+        if (error) {  console.log(error); }
         var amdata = JSON.parse(data)
         let status = 0;
         if (plcdata.ambarstatus === 1) {
@@ -417,6 +446,75 @@ setInterval(() => {
     });
 }, 60000);
 
+function GetFileDate(bb) {
+    var today = new Date();
+    if(bb){
+        var date = (today.getMonth() + 1) + '-' + today.getFullYear();
+        return date;
+    }else{
+        var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
+        return date;
+    }
+}
+
+function SaveAmbarData() {
+    fs.readFile(`./ambardata/${GetFileDate(true)}/${GetFileDate()}.json`, null, function (error, data) {
+        if (error) {  console.log(error); }
+        var amdata = JSON.parse(data)
+        let status = 0;
+        if (plcdata.ambarstatus === 1) {
+            status = 10;
+        } else if (plcdata.ambarstatus === 2){
+            status = 20;
+        } else if (plcdata.ambarstatus === 3){
+            status = 30;
+        } else if (plcdata.ambarstatus === 4){
+            status = 40;
+        } else {
+            status = 0;
+        }
+        amdata.push({
+            time: GetDate(true),
+            status: status,
+            seviye: plcdata.ambarseviye,
+        });
+        fs.writeFile(`./ambardata/${GetFileDate(true)}/${GetFileDate()}.json`, JSON.stringify(amdata), err => {
+            if (err) throw err;
+        });
+    });
+}
+setInterval(() => {
+    var dir = `./ambardata/${GetFileDate(true)}`;
+    if (!fs.existsSync(dir)){
+        fs.mkdirSync(dir, { recursive: true });
+        console.log('\x1b[32m', `${dir} directory created.` ,'\x1b[0m');
+        fs.readFile(`./ambardata/${GetFileDate(true)}/${GetFileDate()}.json`, null, function (error, data) {
+            if (error) {  
+                fs.appendFile(`./ambardata/${GetFileDate(true)}/${GetFileDate()}.json`, '[]', err => {
+                    if (err) throw err;
+                    console.log('\x1b[32m', `${GetFileDate()}.json File created.` ,'\x1b[0m');
+                    SaveAmbarData()
+                });
+            }else{
+                SaveAmbarData()
+            }
+        });
+    }else{
+        fs.readFile(`./ambardata/${GetFileDate(true)}/${GetFileDate()}.json`, null, function (error, data) {
+            if (error) {  
+                fs.appendFile(`./ambardata/${GetFileDate(true)}/${GetFileDate()}.json`, '[]', err => {
+                    if (err) throw err;
+                    console.log('\x1b[32m', `${GetFileDate()}.json File created.` ,'\x1b[0m');
+                    SaveAmbarData()
+                });
+            }else{
+                SaveAmbarData()
+            }
+        });
+    }
+} , 60000);
+
+
 
 
 var crusherPLC = new nodes7;
@@ -440,7 +538,7 @@ crusherPLC.initiateConnection({
 function crusherPLCconnected(err) {
     if (typeof (err) !== "undefined") {
         console.log(err);
-        process.exit();
+        
     }
     crusherPLC.setTranslationCB(function (tag) {
         return crusherPLCvariables[tag];
@@ -450,7 +548,7 @@ function crusherPLCconnected(err) {
 }
 
 function crusherPLCvaluesReady(err, values) {
-    if (err) { console.log("OKUNAN DEĞERLERDE HATA VAR"); }
+    if (err) { console.log('\x1b[31m', `Plc Bağlantısı Yok yada Okunan Değerlerde Hata Var` ,'\x1b[0m'); return }
     crusherPLC.readAllItems(crusherPLCvaluesReady);
     plcdata.crusherkwh = parseInt(values.crusherkhw.toFixed());
     plcdata.crusherpdc = {
@@ -460,3 +558,55 @@ function crusherPLCvaluesReady(err, values) {
     
 }
 
+
+
+
+// const Modbus = require('jsmodbus')
+// const net = require('net')
+// const socket = new net.Socket()
+// const client = new Modbus.client.TCP(socket, 1)
+// const options = {
+//     'host' : '192.168.1.111',
+//     'port' : 502,
+//     'unitId' : 1,
+//     'timeout' : 1000,
+//     'autoReconnect' : true,
+//     'reconnectTimeout' : 1000,
+//     'logEnabled' : false,
+//     'logLevel' : 'debug'
+
+// }
+
+// // for reconnecting see node-net-reconnect npm module
+
+// // use socket.on('open', ...) when using serialport
+// socket.on('connect', function () {
+
+// // make some calls
+// let num = 1
+// setInterval(() => {
+//     client.readHoldingRegisters(1, 100).then(function (resp) {
+
+//         // resp will look like { response : [TCP|RTU]Response, request: [TCP|RTU]Request }
+//         // the data will be located in resp.response.body.coils: <Array>, resp.response.body.payload: <Buffer>
+        
+        
+//         console.clear()
+//         console.log(resp.response._body._valuesAsBuffer.readFloatBE(num));
+//         console.log(resp.response._body._valuesAsBuffer.readFloatBE(num));
+//         console.log(resp.response._body._valuesAsBuffer.readFloatBE(num));
+//         console.log(resp.response._body._valuesAsBuffer.readFloatBE(num));
+//         console.log(num)
+//         num++
+        
+
+        
+    
+
+    
+//     }, console.error);
+// }, 1000);
+
+// });
+    
+// socket.connect(options)
