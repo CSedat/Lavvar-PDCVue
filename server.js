@@ -419,32 +419,32 @@ function ambarPLCvaluesReady(err, values) {
 
 }
 
-setInterval(() => {
-    fs.readFile('./ambardata.json', null, function (error, data) {
-        if (error) {  console.log(error); }
-        var amdata = JSON.parse(data)
-        let status = 0;
-        if (plcdata.ambarstatus === 1) {
-            status = 10;
-        } else if (plcdata.ambarstatus === 2){
-            status = 20;
-        } else if (plcdata.ambarstatus === 3){
-            status = 30;
-        } else if (plcdata.ambarstatus === 4){
-            status = 40;
-        } else {
-            status = 0;
-        }
-        amdata.push({
-            time: GetDate(true),
-            status: status,
-            seviye: plcdata.ambarseviye,
-        });
-        fs.writeFile('./ambardata.json', JSON.stringify(amdata), err => {
-            if (err) throw err;
-        });
-    });
-}, 60000);
+// setInterval(() => {
+//     fs.readFile('./ambardata.json', null, function (error, data) {
+//         if (error) {  console.log(error); }
+//         var amdata = JSON.parse(data)
+//         let status = 0;
+//         if (plcdata.ambarstatus === 1) {
+//             status = 10;
+//         } else if (plcdata.ambarstatus === 2){
+//             status = 20;
+//         } else if (plcdata.ambarstatus === 3){
+//             status = 30;
+//         } else if (plcdata.ambarstatus === 4){
+//             status = 40;
+//         } else {
+//             status = 0;
+//         }
+//         amdata.push({
+//             time: GetDate(true),
+//             status: status,
+//             seviye: plcdata.ambarseviye,
+//         });
+//         fs.writeFile('./ambardata.json', JSON.stringify(amdata), err => {
+//             if (err) throw err;
+//         });
+//     });
+// }, 60000);
 
 function GetFileDate(bb) {
     var today = new Date();
